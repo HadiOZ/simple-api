@@ -4,35 +4,37 @@ import (
 	"database/sql"
 	"fmt"
 	"simple-api/payload"
+
+	"github.com/rs/xid"
 )
 
-type LogBarang struct {
+type Log struct {
 	id     string
-	name   Barang
+	name   Product
 	action string
 	date   string
 	amount int64
-	admin  User
+	admin  Employee
 }
 
-func (lb *LogBarang) Set(item *payload.LogBarang) {
-	var barang Barang
-	var admin User
+func (lb *Log) Set(item *payload.Log) {
+	var name Product
+	var admin Employee
 
-	barang.Set(&item.Name)
+	name.Set(&item.Name)
 	admin.Set(&item.Admin)
 
 	lb.id = item.ID
 	lb.date = item.Date
-	lb.name = barang
+	lb.name = name
 	lb.admin = admin
 	lb.action = item.Action
 	lb.amount = item.Amount
 }
 
-func (lb *LogBarang) Get() payload.LogBarang {
+func (lb *Log) Get() payload.Log {
 
-	return payload.LogBarang{
+	return payload.Log{
 		ID:     lb.id,
 		Name:   lb.name.Get(),
 		Action: lb.action,
@@ -42,7 +44,7 @@ func (lb *LogBarang) Get() payload.LogBarang {
 	}
 }
 
-// func (lb *LogBarang) createID() {
+// func (lb  Log) createID() {
 // 	time := time.Now()
 // 	year := strconv.Itoa(time.Year())
 // 	month := strings.ToUpper(time.Month().String())
@@ -59,10 +61,11 @@ func (lb *LogBarang) Get() payload.LogBarang {
 // 	lb.id = encode
 // }
 
-func (lb *LogBarang) Insert(db *sql.DB) (int64, error) {
-	// lb.createID()
-	query := fmt.Sprintf(`INSERT INTO public.log_inventory(action, amount, id_product, admin) VALUES ('%s', %d, '%s', '%s');`, lb.action, lb.amount, lb.name.id, lb.admin.id)
-	// fmt.Print(query)
+func (lb *Log) Insert(db *sql.DB) (int64, error) {
+	id := xid.New().String()
+	lb.id = id
+	query := fmt.Sprintf(`INSERT INTO public.inventory_log(id_log, id_product_fkey, id_employee_fkey, action, amount) VALUES ('%s', '%s', '%s', '%s', %d);`, id, lb.name.id, lb.admin.id, lb.action, lb.amount)
+	fmt.Print(query)
 	res, err := db.Exec(query)
 	if err != nil {
 		return 0, err
@@ -72,5 +75,8 @@ func (lb *LogBarang) Insert(db *sql.DB) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	lb.id = id
 	return effect, nil
 }
+
+// func SelectByProduct()

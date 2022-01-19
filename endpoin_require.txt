@@ -1,0 +1,8 @@
+sign in
+select all product with current total amount
+insert new product
+selact log_inventory by product
+insert new log_inventory
+update log_inventory amount
+upload picture 
+get picture

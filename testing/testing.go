@@ -6,15 +6,19 @@ import (
 	"simple-api/models"
 	ctx "simple-api/models/context"
 	"simple-api/payload"
+
+	"github.com/google/uuid"
+	"github.com/rs/xid"
 )
 
 func main() {
 	context := ctx.DbContext{
+
 		Host:     "127.0.0.1",
 		Port:     "5432",
 		User:     "hadioz",
 		Password: "ozmonday",
-		DbName:   "gudang",
+		DbName:   "inventory",
 	}
 
 	db, err := context.ConnectDB()
@@ -22,50 +26,64 @@ func main() {
 		log.Fatalf("Tidak Konek DB Errornya : %s", err)
 	}
 
-	barang := payload.Barang{
-		Name:  "Mie Ayam",
-		Price: 12000,
+	user := payload.Employee{
+		Name:     "Salim jusuf",
+		Username: "salmjsdsfkssdfgagsdurs",
+		Position: "Staff Gudang",
 	}
 
-	user := payload.User{
-		Name:     "gofursasa",
-		Username: "gofurur",
-		Password: "haloukoni",
-		Role:     "admin",
+	cimol := payload.Product{
+		Name:  "Cimol Pak Muh",
+		Code:  "sadadadhsa",
+		Price: 3500,
 	}
 
-	var pdct models.Barang
-	var usr models.User
+	var usr models.Employee
 	usr.Set(&user)
-	pdct.Set(&barang)
-	row, err := pdct.Insert(db)
+
+	var prd models.Product
+	prd.Set(&cimol)
+
+	var loge models.Log
+
+	row, err := prd.Insert(db)
 	if err != nil {
 		log.Fatalf("Tidak dapat menambah data : %s", err)
 	}
 	fmt.Println(row)
+	fmt.Println(prd)
+	cimol.ID = prd.Get().ID
 	row, err = usr.Insert(db)
 	if err != nil {
 		log.Fatalf("Tidak dapat menambah data : %s", err)
 	}
 	fmt.Println(row)
-	// fmt.Println(usr)
+	fmt.Println(usr)
+	user.ID = usr.Get().ID
 
-	loge := payload.LogBarang{
-		Name:   pdct.Get(),
+	loging := payload.Log{
+		Name:   cimol,
 		Action: "i",
-		Amount: 344,
-		Admin:  usr.Get(),
+		Amount: 54,
+		Admin:  user,
 	}
 
-	// fmt.Println(loge)
-	var loging models.LogBarang
-	loging.Set(&loge)
-	row, err = loging.Insert(db)
-
+	loge.Set(&loging)
+	row, err = loge.Insert(db)
 	if err != nil {
-		log.Fatalf("Tidak dapat menambah data : %s", err)
+		log.Fatalf("Tidak dapat menambah data log : %s", err)
 	}
-
 	fmt.Println(row)
-	defer db.Close()
+
+	products, err := models.SelectAllProduct(db)
+	if err != nil {
+		log.Fatalf("Tidak dapat menemukan data : %s", err)
+	}
+	fmt.Println(products)
+
+	id := uuid.New()
+	xid := xid.New()
+
+	fmt.Println(id.String())
+	fmt.Println(xid.String())
 }
