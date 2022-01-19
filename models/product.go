@@ -40,7 +40,8 @@ func (b *Product) Get() payload.Product {
 
 func (b *Product) Insert(db *sql.DB) (int64, error) {
 	id := xid.New().String()
-	query := fmt.Sprintf("INSERT INTO public.product(id_product, name, code, price) VALUES ('%s', '%s', '%s', %d)", id, b.name, b.code.String, b.price)
+	query := fmt.Sprintf(`INSERT INTO public.product(id_product, name, code, price) 
+		VALUES ('%s', '%s', '%s', %d)`, id, b.name, b.code.String, b.price)
 	fmt.Println(query)
 	res, err := db.Exec(query)
 	if err != nil {
