@@ -21,7 +21,7 @@ func (lb *Log) Set(item *payload.Log) {
 	var name Product
 	var admin Employee
 
-	name.Set(&item.Name)
+	name.Set(&item.Product)
 	admin.Set(&item.Admin)
 
 	lb.id = item.ID
@@ -35,12 +35,12 @@ func (lb *Log) Set(item *payload.Log) {
 func (lb *Log) Get() payload.Log {
 
 	return payload.Log{
-		ID:     lb.id,
-		Name:   lb.name.Get(),
-		Action: lb.action,
-		Date:   lb.date,
-		Amount: lb.amount,
-		Admin:  lb.admin.Get(),
+		ID:      lb.id,
+		Product: lb.name.Get(),
+		Action:  lb.action,
+		Date:    lb.date,
+		Amount:  lb.amount,
+		Admin:   lb.admin.Get(),
 	}
 }
 
@@ -77,8 +77,8 @@ func (lb *Log) Update(db *sql.DB) (int64, error) {
 	return effect, nil
 }
 
-func SelectLogByIDProduct(id string, db *sql.DB) ([]payload.Log, error) {
-	result := []payload.Log{}
+func SelectLogByIDProduct(id string, db *sql.DB) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
 	query := fmt.Sprintf(`SELECT id_log, admin, action, date, amount FROM view_log WHERE id_product = '%s';`, id)
 	fmt.Println(query)
 	row, err := db.Query(query)
@@ -90,7 +90,26 @@ func SelectLogByIDProduct(id string, db *sql.DB) ([]payload.Log, error) {
 		if err := row.Scan(&item.ID, &item.Admin.Name, &item.Action, &item.Date, &item.Amount); err != nil {
 			return result, err
 		}
-		result = append(result, item)
+		result = append(result, map[string]interface{}{"id": item.ID, "admin": item.Admin.Name, "action": item.Action, "date": item.Date, "amount": item.Amount})
+	}
+	return result, nil
+}
+
+func SelectLogHistory(id string, db *sql.DB) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	var time string
+	query := fmt.Sprintf(`SELECT * FROM view_history_log WHERE id_log = '%s';`, id)
+	fmt.Println(query)
+	row, err := db.Query(query)
+	if err != nil {
+		return result, err
+	}
+	for row.Next() {
+		item := payload.Log{}
+		if err := row.Scan(&item.ID, &item.Admin.Name, &item.Date, &time, &item.Amount); err != nil {
+			return result, err
+		}
+		result = append(result, map[string]interface{}{"id": item.ID, "admin": item.Admin.Name, "date": item.Date, "time": time, "amount": item.Amount})
 	}
 	return result, nil
 }

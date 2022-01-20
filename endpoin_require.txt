@@ -1,8 +1,8 @@
-sign in
-select all product with current total amount
-insert new product
-selact log_inventory by product
-insert new log_inventory
-update log_inventory amount
+sign in select user by username -udah
+select all product with current total amount -udah
+insert new product -udah
+selact log_inventory by product -udah
+insert new log_inventory -udah
+update log_inventory amount -udah
 upload picture 
 get picture

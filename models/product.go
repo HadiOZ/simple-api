@@ -58,7 +58,7 @@ func (b *Product) Insert(db *sql.DB) (int64, error) {
 
 func SelectAllProduct(db *sql.DB) ([]payload.Product, error) {
 	var result []payload.Product
-	query := "SELECT id_product, name, stock FROM public.product;"
+	query := "SELECT id_product, name, price, code, stock, image_path FROM public.product;"
 	fmt.Println(query)
 	row, err := db.Query(query)
 	if err != nil {
@@ -67,7 +67,7 @@ func SelectAllProduct(db *sql.DB) ([]payload.Product, error) {
 
 	for row.Next() {
 		item := payload.Product{}
-		if err := row.Scan(&item.ID, &item.Name, &item.Stock); err != nil {
+		if err := row.Scan(&item.ID, &item.Name, &item.Price, &item.Code, &item.Stock, &item.PathImage); err != nil {
 			return result, err
 		}
 		result = append(result, item)

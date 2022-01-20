@@ -110,10 +110,10 @@ func main() {
 	fmt.Println(productID)
 
 	loging := payload.Log{
-		Name:   baso,
-		Action: "i",
-		Amount: 54,
-		Admin:  user,
+		Product: baso,
+		Action:  "i",
+		Amount:  54,
+		Admin:   user,
 	}
 
 	logID := insertLog(&loging, db)
