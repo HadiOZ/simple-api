@@ -48,7 +48,6 @@ func (lb *Log) Insert(db *sql.DB) (int64, error) {
 	id := xid.New().String()
 	lb.id = id
 	query := fmt.Sprintf(`INSERT INTO public.inventory_log(id_log, id_product_fkey, id_employee_fkey, action, amount) VALUES ('%s', '%s', '%s', '%s', %d);`, id, lb.name.id, lb.admin.id, lb.action, lb.amount)
-	fmt.Println(query)
 	res, err := db.Exec(query)
 	if err != nil {
 		return 0, err
@@ -64,7 +63,6 @@ func (lb *Log) Insert(db *sql.DB) (int64, error) {
 
 func (lb *Log) Update(db *sql.DB) (int64, error) {
 	query := fmt.Sprintf(`UPDATE public.inventory_log SET amount = %d, id_employee_fkey = '%s' WHERE id_log ='%s';`, lb.amount, lb.admin.id, lb.id)
-	fmt.Println(query)
 	res, err := db.Exec(query)
 	if err != nil {
 		return 0, err
@@ -80,7 +78,6 @@ func (lb *Log) Update(db *sql.DB) (int64, error) {
 func SelectLogByIDProduct(id string, db *sql.DB) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
 	query := fmt.Sprintf(`SELECT id_log, admin, action, date, amount FROM view_log WHERE id_product = '%s';`, id)
-	fmt.Println(query)
 	row, err := db.Query(query)
 	if err != nil {
 		return result, err
@@ -99,7 +96,6 @@ func SelectLogHistory(id string, db *sql.DB) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
 	var time string
 	query := fmt.Sprintf(`SELECT * FROM view_history_log WHERE id_log = '%s';`, id)
-	fmt.Println(query)
 	row, err := db.Query(query)
 	if err != nil {
 		return result, err

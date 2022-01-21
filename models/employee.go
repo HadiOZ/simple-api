@@ -38,7 +38,6 @@ func (e *Employee) Insert(db *sql.DB) (int64, error) {
 	id := xid.New().String()
 	query := fmt.Sprintf(`INSERT INTO public.employees(id_employee, name, billet, username, password)
 		VALUES ('%s', '%s', '%s', '%s', '%s');`, id, e.name, e.position, e.username, e.password)
-	fmt.Println(query)
 	res, err := db.Exec(query)
 	if err != nil {
 		return 0, err

@@ -3,10 +3,17 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"io"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"simple-api/models"
 	"simple-api/payload"
 	"simple-api/utility"
+	"strings"
+
+	"github.com/google/uuid"
 )
 
 func Halloworld(w http.ResponseWriter, r *http.Request, db *sql.DB) {
@@ -152,4 +159,55 @@ func UpdateLog(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	utility.ResponJSON(w, http.StatusOK, map[string]string{"message": "Data was Updated"})
+}
+
+func UploadImageProduct(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != "POST" {
+		utility.ResponErrorJSON(w, http.StatusBadRequest, "Only allow method POST")
+		return
+	}
+	productID := r.URL.Query().Get("id-product")
+	reader, err := r.MultipartReader()
+	if err != nil {
+		utility.ResponErrorJSON(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	for {
+		part, err := reader.NextPart()
+		if err == io.EOF {
+			break
+		}
+
+		filename := uuid.New().String()
+		ext := filepath.Ext(part.FileName())
+
+		payload := payload.Product{
+			ID:        productID,
+			PathImage: strings.Join([]string{filename, ext}, ""),
+		}
+
+		location := "/home/hadioz/development/golang/simple-api/image"
+
+		filelocation := filepath.Join(location, payload.PathImage)
+		file, err := os.OpenFile(filelocation, os.O_WRONLY|os.O_CREATE, 0666)
+		defer file.Close()
+		if err != nil {
+			log.Panic(err)
+			return
+		}
+
+		if _, err := io.Copy(file, part); err != nil {
+			utility.ResponErrorJSON(w, http.StatusInternalServerError, "Can't save file")
+			return
+		}
+
+		if err := utility.UpdateImagePath(&payload, db); err != nil {
+			utility.ResponErrorJSON(w, http.StatusInternalServerError, "Image failed to save  chack your product id")
+			return
+		}
+	}
+
+	utility.ResponJSON(w, http.StatusOK, map[string]string{"message": "Data was saved"})
+
 }

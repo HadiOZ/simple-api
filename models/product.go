@@ -42,7 +42,6 @@ func (b *Product) Insert(db *sql.DB) (int64, error) {
 	id := xid.New().String()
 	query := fmt.Sprintf(`INSERT INTO public.product(id_product, name, code, price) 
 		VALUES ('%s', '%s', '%s', %d)`, id, b.name, b.code.String, b.price)
-	fmt.Println(query)
 	res, err := db.Exec(query)
 	if err != nil {
 		return 0, err
@@ -59,7 +58,6 @@ func (b *Product) Insert(db *sql.DB) (int64, error) {
 func SelectAllProduct(db *sql.DB) ([]payload.Product, error) {
 	var result []payload.Product
 	query := "SELECT id_product, name, price, code, stock, image_path FROM public.product;"
-	fmt.Println(query)
 	row, err := db.Query(query)
 	if err != nil {
 		return result, err
@@ -76,4 +74,16 @@ func SelectAllProduct(db *sql.DB) ([]payload.Product, error) {
 	return result, nil
 }
 
-// func SelectByName()
+func (p *Product) UpdatePath(db *sql.DB) (int64, error) {
+	query := fmt.Sprintf(`UPDATE public.product SET image_path = '%s' WHERE id_product ='%s';`, p.pathImage.String, p.id)
+	res, err := db.Exec(query)
+	if err != nil {
+		return 0, err
+	}
+
+	effect, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return effect, nil
+}

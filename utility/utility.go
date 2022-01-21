@@ -82,3 +82,16 @@ func UpdateLog(item *payload.Log, db *sql.DB) error {
 	return nil
 
 }
+
+func UpdateImagePath(item *payload.Product, db *sql.DB) error {
+	var product models.Product
+	product.Set(item)
+
+	row, err := product.UpdatePath(db)
+	if err != nil || row <= 0 {
+		newerr := errors.New("Data failed to update")
+		return newerr
+	}
+
+	return nil
+}
